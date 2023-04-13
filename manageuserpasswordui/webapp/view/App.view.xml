@@ -1,0 +1,27 @@
+<mvc:View controllerName="uk.co.brakes.rf.manageuserpasswordui.controller.App" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m">
+    <!--<App id="app">
+    </App> -->
+    <Shell id="shell" appWidthLimited="false">
+        <App id="app">
+            <pages>
+                <Page id="page" title="{i18n>title}" showHeader="false">
+                    <content>
+                        <HBox id="wrapper" class="wrapper">
+                            <!-- Sidebar Holder -->
+                            <!-->"  class="sidebar">
+                                <core:Fragment fragmentName="bsxccx.cloudsuiteui.fragments.sidebar" type="XML"/>
+                            </VBox> -->
+
+                            <!-- Page Content Holder -->
+                            <VBox displayInline="true" width="100%" class="maincontent">
+                                <!--Button class="menuBtn" icon="sap-icon://menu2" type="Transparent" press="onMenuPress"></Button-->
+                                <!-- <core:Fragment fragmentName="bsx.apps.cloudsuiteui.fragments.appHeader" type="XML"/> -->
+                                <App id="mainContents" width="100%" />
+                            </VBox>
+                        </HBox>
+                    </content>
+                </Page>
+            </pages>
+        </App>
+    </Shell>
+</mvc:View>

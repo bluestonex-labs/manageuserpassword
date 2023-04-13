@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "2.5"
+metadata:
+  name: uk.co.brakes.rf.manageuserpasswordui
+type: application
+server:
+  customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ui5:
+          path:
+            - /resources
+            - /test-resources
+          url: https://ui5.sap.com
+        backend:
+          - path: /reporting
+            url: https://uas-reporting.cfapps.eu10.hana.ondemand.com
+            pathReplace: /
+            destination: usageapi_test 
+          - path: /cis_brakesdev
+            url: https://aqrl92om1.accounts.ondemand.com
+            pathReplace: /
+            destination: cloud_identity_service
+          - path: /scim_shadow_users
+            url: https://api.authentication.eu10.hana.ondemand.com/Users
+            pathReplace: /
+            destination: scim_shadow_users
+          - path: /bsxorgappsservices
+            url: https://bsx-tdd-tdd-bsx-org-apps-services.cfapps.eu10.hana.ondemand.com
+            pathReplace: /
+            destination: bsxorgappsservices  
+          - path: /bsxhanadb
+            url: https://bsxhanadbsyse45d7aeab.eu2.hana.ondemand.com
+            pathReplace: /
+            destination: bsxhanadb  
+          - path: /bsxcpeaexperience
+            url: https://bsx-tdd-tdd-cpea-experience-srv.cfapps.eu10.hana.ondemand.com
+            pathReplace: /
+            destination: bsxcpeaexperience  
+    - name: fiori-tools-appreload
+      afterMiddleware: compression
+      configuration:
+        port: 35729
+        path: webapp
+        delay: 300
+    - name: fiori-tools-preview
+      afterMiddleware: fiori-tools-appreload
+      configuration:
+        component: uk.co.brakes.rf.manageuserpasswordui
+        ui5Theme: sap_horizon

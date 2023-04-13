@@ -1,0 +1,459 @@
+<mvc:View xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:micro="sap.suite.ui.microchart"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:main="sap.ui.webc.main"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:fb="sap.ui.comp.filterbar" controllerName="uk.co.brakes.rf.manageuserpasswordui.controller.MANAGE.manageUsers">
+    <Page showHeader="false" backgroundDesign="Solid" class="whitePage">
+        <!--<OverflowToolbar class="noLineToolbar transparentToolbar">
+            <Title text="User Management"/>
+            <ToolbarSpacer/>
+            <Button icon="sap-icon://add" text="Add new user" type="Emphasized" press="onAddNewUser" class="createButton"/>
+
+        </OverflowToolbar> -->
+
+        <!-- BTP KPIs
+        <HBox>
+            <HBox class="boxSeperator sapUiMediumMarginBegin">
+                <micro:RadialMicroChart size="M" valueColor="Error" width="100px" percentage="90" class="sapUiSmallMargin"/>
+                <Label width="150px" text="BTP User Licenses Consumed" wrapping="true" class="sapUiMediumMarginTop blackText"/>
+            </HBox>
+
+            <HBox class="boxSeperator sapUiMediumMarginBegin" alignItems="Center">
+                <Label text="50" class="neutralStatusText"/>
+                <VBox height="100%" class="sapUiSmallMarginBegin">
+                    <Label width="150px" text="BTP User Licenses remaining" wrapping="true" class="sapUiMediumMarginTop blackText"/>
+                </VBox>
+            </HBox>
+
+            <HBox class="boxSeperator sapUiMediumMarginBegin" alignItems="Center">
+                <Label text="122" class="statusText"/>
+                <VBox height="100%" class="sapUiSmallMarginBegin">
+                    <Label width="150px" text="Users expiring this month" wrapping="true" class="sapUiMediumMarginTop blackText"/>
+                </VBox>
+            </HBox>
+
+            <HBox class="boxSeperator sapUiMediumMarginBegin" alignItems="Center">
+                <Label text="12" class="statusText"/>
+                <VBox height="100%" class="sapUiSmallMarginBegin">
+                    <Label width="150px" text="Users Locked" wrapping="true" class="sapUiMediumMarginTop blackText"/>
+                    <core:Icon src="sap-icon://locked" size="20px"/>
+                </VBox>
+            </HBox>
+
+
+        </HBox>
+        -->
+
+        <l:VerticalLayout id="containerLayout" width="100%" class="sapUiContentPadding">
+            <l:content>
+                <!-- <HBox width="100%" class="oneRemPadding" wrap="Wrap">
+                    <FlexBox width="100px">
+		    <Label text="First Name" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Last Name" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="E-Mail" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="User Type" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="Expiry" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <Label text="BTP status" class="rowSpacing"/>
+                  </FlexBox>
+                     <FlexBox width="120px">
+                  <Label text="GW status" class="rowSpacing"/>
+                  </FlexBox>
+                     <FlexBox width="120px">
+                  <Label text="ECC status" class="rowSpacing"/>
+                  </FlexBox>
+                   <FlexBox width="120px">
+                  <Label text="" class="rowSpacing"/>
+                  </FlexBox>
+	</HBox> -->
+                <fb:FilterBar id="filterbar" background="solid" useToolbar="false" search="onUserSearch" showFilterConfiguration="false">
+                    <fb:filterItems>
+                        <fb:FilterItem name="userNameFilter" label="User Name" class="labelColor">
+                            <fb:control>
+                                <!-- <MultiInput id="userNameInput" placeholder="Enter user name" showSuggestion="true" showValueHelp="false" suggestionItems="{path: 'oIdpUsersModel>/',  
+                                                      length : '500'}">
+                                    <suggestionItems>
+                                        <core:ListItem key="{oIdpUsersModel>name/givenName}" text="{oIdpUsersModel>name/givenName} {oIdpUsersModel>name/familyName}"/>
+                                    </suggestionItems>
+                                </MultiInput> -->
+                                <!-- <SearchField id="userNameInput" placeholder="Search by first/last name" search="onSearchUser" /> -->
+                                <Input id="userNameInput" placeholder="Search by first/last name"></Input>
+                            </fb:control>
+                        </fb:FilterItem>
+                        <fb:FilterItem name="userTypeFilter" label="User Type">
+                            <fb:control>
+                                <ComboBox id="userTypeInput" placeholder="Enter user type">
+                                    <core:Item key="Permanent" text="Permanent" />
+                                    <core:Item key="Temporary" text="Temporary" />
+                                </ComboBox>
+                            </fb:control>
+                        </fb:FilterItem>
+                        <fb:FilterItem name="expDateFilter" label="Expiry Date">
+                            <fb:control>
+                                <!-- <DatePicker id="expDatePicker" placeholder="Enter expiry date" change="onExpDateChange" format="yyyy-MM-dd"/> -->
+                                <DateRangeSelection id="expDatePicker" placeholder="Enter expiry date" class="DRS1" value= "{
+                                        'type': 'sap.ui.model.type.DateInterval',
+                                        'formatOptions': {
+                                            'pattern': 'yyyy-MM-dd'
+                                        },
+                                        'parts': [
+                                            {
+                                                'type': 'sap.ui.model.type.Date',
+                                                'path': '/start'
+                                            },
+                                            {
+                                                'type': 'sap.ui.model.type.Date',
+                                                'path': '/end'
+                                            }
+                                        ]
+                                    }" change="onExpDateChange"/>
+                            </fb:control>
+                        </fb:FilterItem>
+                    </fb:filterItems>
+                </fb:FilterBar>
+                <Table sticky="ColumnHeaders" class="transparentTableHeader" id="usersTable" items="{path: 'oIdpUsersModel>/'}" growing="true" growingThreshold="100" updateStarted="onTableUpdateStarted" alternateRowColors="true">
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="Users ({path: 'oIdpUsersCount>/count'})" level="H2" class="labelColor"/>
+                            <ToolbarSpacer/>
+                            <Button tooltip="Sort" icon="sap-icon://sort" press="handleSortButtonPressed"/>
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <ObjectIdentifier text="{path:'oIdpUsersModel>emails', formatter:'.identifyMailId'}" class="tableText" title="{oIdpUsersModel>name/givenName} {oIdpUsersModel>name/familyName} ( {oIdpUsersModel>userName} )"/>
+                                <Text text="{path:'oIdpUsersModel>userCategory'}" class="purpleText" />
+                                <Text text="{path:'oIdpUsersModel>validTo', formatter:'.formatValidTo'}" class="purpleText" />
+                                <!-- <core:Icon src="sap-icon://unlocked" class="purpleText"/> -->
+                                <Switch id="btpAccessSwitch" state="{path:'oIdpUsersModel>active'}" customTextOn=" " customTextOff=" " change="onChangeBtpAccess">
+                                    <layoutData>
+                                        <FlexItemData growFactor="1" />
+                                    </layoutData>
+                                </Switch>
+                                <Button text="Reset Password" type="Emphasized" press="resetUserPwd" class="createButton" enabled="{path:'oIdpUsersModel>active'}" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                    <columns>
+                        <Column width="15rem">
+                            <header>
+                                <Label text="User Name" id="label56" class="labelColor"/>
+                            </header>
+                        </Column>
+                        <Column width="7rem">
+                            <header>
+                                <Label text="User Type" id="label57" />
+                            </header>
+                        </Column>
+                        <Column width="10rem">
+                            <header>
+                                <Label text="Expiry Date" id="label58" />
+                            </header>
+                        </Column>
+                        <Column width="5rem">
+                            <header>
+                                <Label text="Active ?" />
+                            </header>
+                        </Column>
+                        <Column width="8rem">
+                            <header />
+                        </Column>
+
+                    </columns>
+                </Table>
+                <!-- <l:BlockLayout background="Default">
+        <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+
+         <l:BlockLayoutRow accentCells="Accent1">
+            <l:BlockLayoutCell class="manageUsersList">
+                	<HBox width="100%" wrap="Wrap" alignItems="Center">
+                    <FlexBox width="100px">
+		    <Label text="Dan" class="rowSpacing" wrapping="true"/>
+                  </FlexBox>
+                       <FlexBox width="100px">
+            <Label text="Barton" class="rowSpacing" wrapping="true"/>
+          </FlexBox>
+               <FlexBox width="300px">
+            <Label text="Dan.Barton@bluestonex.com" class="rowSpacing" wrapping="true"/>
+            </FlexBox>
+                 <FlexBox width="100px">
+              <Label text="Permanent" class="rowSpacing" wrapping="true"/>
+              </FlexBox>
+                   <FlexBox width="200px">
+                <Label text="31st December 2030" class="rowSpacing" wrapping="true"/>
+                </FlexBox>
+                     <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                      <FlexBox width="120px">
+                  <core:Icon src="sap-icon://unlocked" class="rowSpacing"/>
+                  </FlexBox>
+                  <FlexBox>
+                 <Button icon="sap-icon://edit" type="Transparent"/>
+                  </FlexBox>
+	</HBox>
+            </l:BlockLayoutCell>
+        </l:BlockLayoutRow>
+       
+    
+    </l:BlockLayout>
+       -->
+            </l:content>
+        </l:VerticalLayout>
+    </Page>
+</mvc:View>

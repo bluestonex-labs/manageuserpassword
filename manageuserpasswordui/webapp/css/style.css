@@ -1,0 +1,19 @@
+/* Enter your custom styles here */
+.labelColor {
+    color: #104c1d;
+}
+
+.sapUiVlt.sapUiContentPadding {
+    padding: 0rem; 
+    box-sizing: border-box;
+}
+
+.sapUiVlt.sapUiContentPadding>.sapuiVltCell:not(:last-child) {
+    padding-bottom: 0rem; 
+    box-sizing: border-box;
+}
+
+.sapMPopover {
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
