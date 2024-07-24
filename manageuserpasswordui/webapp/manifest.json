@@ -22,7 +22,7 @@
                         "parameters": {},
                         "additionalParameters": "allowed"
                     },
-                    "semanticObject": "userpassword",
+                    "semanticObject": "Manage_User_Password",
                     "action": "manage",
                     "title": "{{flpTitle}}",
                     "subTitle": "{{flpSubtitle}}",
@@ -50,7 +50,7 @@
     "sap.ui5": {
         "flexEnabled": true,
         "dependencies": {
-            "minUI5Version": "1.111.0",
+            "minUI5Version": "1.108.32",
             "libs": {
                 "sap.m": {},
                 "sap.ui.core": {},
