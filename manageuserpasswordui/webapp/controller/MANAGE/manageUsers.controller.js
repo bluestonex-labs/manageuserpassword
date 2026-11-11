@@ -261,9 +261,16 @@ sap.ui.define([
             resetUserPwd: function (oEvent) {
                 var sUserMailId = oEvent.getSource().getParent().getCells()[0].getText();
                 var sUserName = oEvent.getSource().getParent().getCells()[0].getTitle();
+                // IAS user id of the selected row - needed for the SCIM password update
+                var oUser = oEvent.getSource().getBindingContext("oIdpUsersModel").getObject();
+                var sIdpUserId = oUser ? oUser.id : "";
+                if (!sIdpUserId) {
+                    MessageBox.error("The selected user could not be identified, please refresh and try again.");
+                    return;
+                }
                 if (sUserMailId) {
                     sUserMailId = sUserMailId.toLowerCase();
-                    this.resetUserPassword(sUserMailId, sUserName);
+                    this.resetUserPassword(sUserMailId, sUserName, sIdpUserId);
                     /*TESTING : RESET PASSWORD only for JOHN EXAMPLE user */
                     /*if (sUserMailId == "john.example@sap.com") {
                         this.resetUserPassword(sUserMailId);
@@ -275,7 +282,7 @@ sap.ui.define([
                 }
             },
 
-            resetUserPassword: function (sUserMailId, sUserName) {
+            resetUserPassword: function (sUserMailId, sUserName, sIdpUserId) {
                 //var url = this.appModulePath + "/sap/opu/odata/sap/ZRF_REPLENISHMENT_SRV/TOListSet";
                 var oLocation = "/cis_brakesdev";
                 /*switch (this.oLocation) {
@@ -288,7 +295,8 @@ sap.ui.define([
                     default:
                         oLocation = "/cis_bsxtdd";
                 }*/
-                var url = this.appModulePath + oLocation + "/service/users/statusPassword/new";
+                // set the password through the IAS SCIM 2.0 API (the legacy /service/users/statusPassword/new endpoint returns 404)
+                var url = this.appModulePath + oLocation + "/scim/Users/" + encodeURIComponent(sIdpUserId);
                 var that = this;
                 /* NEW CODE BEGIN*/
                 this.oPasswdResetDialog = new sap.m.Dialog({
@@ -345,17 +353,27 @@ sap.ui.define([
                                 sap.ui.getCore().byId("sPwdFld").setValueState("Error");
                                 sap.ui.getCore().byId("sPwdFld").setValueStateText("Password cannot be empty");
                             } else {
-                                var oPayload =
-                                {
-                                    "identifier": "mail",
-                                    "mail": sUserMailId,
-                                    "password": this.sResetPwd
+                                var oPayload = {
+                                    "schemas": [
+                                        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+                                    ],
+                                    "Operations": [
+                                        {
+                                            "op": "replace",
+                                            "path": "password",
+                                            "value": this.sResetPwd
+                                        }
+                                    ]
                                 };
                                 var that = this;
+                                BusyIndicator.show(0);
                                 $.ajax({
                                     url: url,
-                                    type: "PUT",
-                                    contentType: "application/json",
+                                    type: "PATCH",
+                                    contentType: "application/scim+json",
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader("Accept", "application/scim+json");
+                                    },
                                     //dataType: "json",
                                     data: JSON.stringify(oPayload),
                                     success: function (oData, response) {
@@ -390,13 +408,25 @@ sap.ui.define([
                                         that.oPasswdResetDialog.destroy();
                                         that.oPasswdResetDialog = null;
 
-                                        if (jqXHR.getAllResponseHeaders().includes("x-message-code: PASSWORD_IN_HISTORY")) {
-                                            MessageBox.error("Password could not be reset as the new password is already in history, please choose a different password and try again!");
-                                        } else if (jqXHR.getAllResponseHeaders().includes("x-message-code: INSUFFICIENT_PASSWORD_COMPLEXITY")) {
-                                            MessageBox.error("Password could not be reset as the new password's complexity is not sufficient, please choose a different password and try again!");
+                                        // SCIM errors return a JSON body with a "detail" message
+                                        var sHeaders = jqXHR.getAllResponseHeaders() || "";
+                                        var sDetail = "";
+                                        try {
+                                            var oError = jqXHR.responseJSON || JSON.parse(jqXHR.responseText);
+                                            sDetail = (oError && (oError.detail || oError.message)) || "";
+                                        } catch (e) {
+                                            sDetail = "";
                                         }
-                                        else {
-                                            MessageBox.error("Password could not be reset, please retry with another password" + errorThrown);
+                                        var sDetailUpper = sDetail.toUpperCase();
+
+                                        if (sHeaders.includes("PASSWORD_IN_HISTORY") || sDetailUpper.includes("HISTORY")) {
+                                            MessageBox.error("Password could not be reset as the new password is already in history, please choose a different password and try again!");
+                                        } else if (sHeaders.includes("INSUFFICIENT_PASSWORD_COMPLEXITY") || sDetailUpper.includes("COMPLEXITY") || sDetailUpper.includes("POLICY")) {
+                                            MessageBox.error("Password could not be reset as the new password's complexity is not sufficient, please choose a different password and try again!");
+                                        } else if (jqXHR.status === 404) {
+                                            MessageBox.error("Password could not be reset as the user was not found in the identity service.");
+                                        } else {
+                                            MessageBox.error("Password could not be reset, please retry with another password. " + (sDetail || errorThrown));
                                         }
                                     }
                                 }, that);
@@ -522,17 +552,9 @@ sap.ui.define([
                     url: sUrl,
                     type: "GET",
                     contentType: "application/json",
-                    //dataType: "json",
-                    //data: JSON.stringify(oPayload),
-                    /* beforeSend: function (xhr) {
-                        var param = sUrl;
-                        var token = that.getCSRFToken(param);
-                        xhr.setRequestHeader("X-CSRF-Token", token);
-                        xhr.setRequestHeader("Accept", "application/json");
- 
-                    }, */
                     success: function (oData, response) {
-                        var oCurrentUser = JSON.parse(oData);
+                        // var oCurrentUser = JSON.parse(oData);
+                        var oCurrentUser = oData;
                         that.loggedinUserEmail = oCurrentUser.email;
                         that.firstname = oCurrentUser.firstname;
                         that.lastname = oCurrentUser.lastname;
